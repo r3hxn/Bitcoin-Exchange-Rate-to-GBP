@@ -1,0 +1,23 @@
+{
+  "name": "nodebootstraper",
+  "version": "3.3.7",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "*",
+    "chart.js": "^2.7.2",
+    "ejs": "^2.6.1",
+    "express": "*",
+    "jade": "*",
+    "method-override": "*",
+    "morgan": "*",
+    "serve-favicon": "*",
+    "stylus": "*"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "*",
+    "npm": "*"
+  }
+}

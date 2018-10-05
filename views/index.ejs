@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Bitcoin Exchange Rate</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+      <div class="container">
+        <img class="logo img-responsive" src="images/bitcoin.png">
+        <div class="navbar-brand-wrapper"><a class="navbar-brand" href="#">Bitcoin Exchange Rate </a></div>
+        <div class="xchangerate-wrapper">
+          <ul>
+              <li>
+                  <div class="xchangerate">
+                      <div>BTC/GBP<div>
+                      <span id="xchangeRate">----</span>
+                  </div>
+              </li>
+              <li>
+                  <div class="ticker-wrapper">
+                  <span class="up"><i class="fas fa-caret-up"></i></span>
+                  <span class="down"><i class="fas fa-caret-up fa-flip-vertical"></i></span>
+                  <span id="percentDiff"><span>
+                  </div>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center chart-container">
+            <canvas id="crypto-chart"></canvas>
+            <div class="text-center">31 Days</div>
+        </div>
+      </div>
+    </div>
+    <div class="float-right" style="margin-top:100px;margin-right:30px;">@Rehan Haque</div>
+    <!-- Bootstrap core JavaScript -->
+    <script src="js/jquery/jquery.min.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+
+    <script>
+
+
+    $( document ).ready(function() {
+        doPoll();
+        pollExchangeRate();
+        
+    });
+
+    var todaysRate;
+    var yesterdays;
+
+    function pollExchangeRate() {
+      setTimeout(doPoll, 55000);
+    }
+
+    function doPoll() {
+      $.ajax({
+        url: "/getExchangeRate",
+        type: "GET",
+        success: function (data) {
+          todaysRate = data
+          $('#xchangeRate').text("£" + (Math.round(todaysRate * 100) / 100).toString());
+
+        },
+        error: function (error) {
+          $('#xchangeRate').text('----');
+        },
+        dataType: "json",
+        complete: pollExchangeRate(),
+        timeout: 2000
+      })
+    }
+
+
+    /**
+     * CryptoCurrency Chart
+     **/
+
+    var inputs = { min: -100, max: 100, count: 8, decimals: 2, continuity: 1 };
+
+    function fetchData() {
+      return fetch('/getHistoricalData')
+        .then(res => res.json())
+        .then(data => { return data})
+        .then(data => ({
+          data: Object.keys(data.bpi).map(k => data.bpi[k]),
+          labels: Object.keys(data.bpi).map(key => key.split('-'))
+        }));
+    }
+
+    function createChart() {
+      fetchData().then( ({ data, labels }) => {
+        yesterdays = data[data.length - 1];
+
+        calculateYesterdaysOffset(yesterdays);
+
+        var canvas = document.getElementById("crypto-chart");
+        new Chart(canvas, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                backgroundColor: "#ffc107",
+                borderColor: "#ffc107",
+                data: data,
+                label: "BTC/GBP",
+                fill: false
+              }
+            ]
+          },
+          options: Object.assign({}, options, {
+            title: {
+              text: "",
+              display: false
+            },
+             legend: {
+    	        display: false
+            },
+            offsetWidth: 1000,
+          })
+        });
+      });
+    }
+
+    var options = {
+     maintainAspectRatio: false,
+     responsive: true,
+     spanGaps: false, elements: { line: { tension: 0.000001 } },
+      plugins: { filler: { propagate: false } },
+      scales: {
+
+        xAxes: [{
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: { display: false }
+        }],
+        yAxes: [{
+          gridLines: {
+            display: false,
+            drawBorder: false
+          }
+
+        }]
+      }
+    };
+
+    function calculateYesterdaysOffset() {
+      if (todaysRate !== undefined && yesterdays !== undefined) {
+        var difference = todaysRate - yesterdays;
+
+        todaysRate > yesterdays
+          ? $('.ticker-wrapper').addClass('positive')
+          : $('.ticker-wrapper').addClass('negative');
+
+        var percentage = Math.round((Math.abs(difference)/yesterdays)*100);
+
+        $('#percentDiff').text(percentage + "%");
+      } else {
+        setTimeout(calculateYesterdaysOffset, 1000);
+      }
+    }
+
+
+    createChart()
+    </script>
+  </body>
+
+</html>

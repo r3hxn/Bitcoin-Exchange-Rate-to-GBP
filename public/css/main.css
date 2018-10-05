@@ -1,0 +1,67 @@
+body {
+    background-color: black;
+}
+.bg-dark {
+    background-color: #111111!important;
+}
+
+.chart-container{
+    height:400px;
+    margin-top: 50px;
+}
+@media only screen and (max-width:768px) {
+    .chart-container{
+        height:200px;
+    }
+}
+
+@media only screen and (max-width:480px) {
+    .navbar-brand-wrapper{
+        width:100%;
+        text-align: center;
+    }
+    .logo {
+        display:none;
+    }
+    .xchangerate-wrapper ul{
+        display:inline-block;
+        padding-left:0; 
+    }
+    .xchangerate-wrapper{
+        width: 100%;
+        text-align: center;
+    }
+}
+.ticker-wrapper span, .xchangerate div, .xchangerate span{
+    color:orange;
+}
+nav  ul{
+    list-style-type: none;
+}
+nav ul li{
+    float: right;
+    padding: 10px;
+}
+
+.logo{
+    max-width:8%;
+}
+
+
+.ticker-wrapper .up {
+ display: none;
+ color:green;
+}
+.ticker-wrapper .down {
+ display: none;
+ color:red
+}
+
+.ticker-wrapper.positive .up {
+    display: initial !important
+}
+
+.ticker-wrapper.negative .down {
+    display: initial !important
+}
+
